@@ -1,0 +1,21 @@
+create table VK_forms_scrapper.USER_TABLE
+(
+    user_id                bigint auto_increment comment 'system user id',
+    vk_user_id             bigint                  not null comment 'vk user id',
+    user_vk_profile_url    text                    null comment 'user vk profile url',
+    user_first_name        text                    null comment 'user name',
+    user_sec_name          text                    null comment 'user sec name',
+    user_sex               ENUM ('male', 'female') null,
+    user_birth_date        text                    null,
+    user_city              text                    null,
+    user_country           text                    null,
+    user_job_place         text                    null,
+    user_education_place   text                    null,
+    user_number_of_friends int                     null,
+    user_status            text                    null,
+    constraint USER_TABLE_pk
+        primary key (user_id),
+    constraint USER_TABLE_pk
+        unique (vk_user_id)
+);
+

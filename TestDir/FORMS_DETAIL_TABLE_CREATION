@@ -1,0 +1,11 @@
+create table VK_forms_scrapper.FORMS_DETAIL_TABLE
+(
+    answer_id    bigint auto_increment comment 'system answer id',
+    vk_answer_id bigint not null comment 'vk answer id',
+    form_id      bigint not null comment 'system linked form id',
+    vk_form_id   bigint null comment 'vk linked form id',
+    answer_content text,
+    constraint FORMS_DETAIL_TABLE_pk
+        primary key (answer_id)
+);
+
