@@ -19,8 +19,9 @@ def auth():
         print(error_msg)
         return -1
 
-    GROUP_ID = -188660528
+    # GROUP_ID = -188660528
     KPSO_ID = -172053584
+    GROUP_ID = KPSO_ID
     print('ok!')
     # wall = tools.get_all('account.getInfo', 100, {'owner_id': 503295363})
     # wall = tools.get_all('account.getInfo', 1, {'fields': "country"})
@@ -44,7 +45,8 @@ def auth():
     voting = vk.polls.addVote(owner_id=GROUP_ID, poll_id=pool_id, answer_ids=list_id_answers[:1])
     kpso_members = vk.polls.getVoters(owner_id=GROUP_ID,
                                       poll_id=pool_id,
-                                      answer_ids=list_id_answers)
+                                      answer_ids=list_id_answers,
+                                      count=1_000)
 
     pprint(kpso_members)
 
