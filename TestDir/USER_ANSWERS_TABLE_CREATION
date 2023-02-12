@@ -1,0 +1,13 @@
+create table VK_forms_scrapper.USER_ANSWERS_TABLE
+(
+    record_id    bigint auto_increment,
+    user_id      bigint not null,
+    vk_user_id   bigint not null,
+    answer_id    bigint not null,
+    vk_answer_id bigint not null,
+    form_id      bigint null,
+    vk_form_id   bigint null,
+    constraint USER_ANSWERS_TABLE_pk
+        primary key (record_id)
+);
+
