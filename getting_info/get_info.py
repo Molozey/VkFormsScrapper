@@ -1,25 +1,15 @@
 import vk_api
 from login_credits import phone_number, password
-from dbDeployCmd import create_tables_query
-
+from MySQLDaemon import MySqlDaemon
 from pprint import pprint
+import yaml
 
-from getpass import getpass
-from mysql.connector import connect, Error
+with open("configuration.yaml", "r") as ymlfile:
+    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-try:
-    with connect(host="localhost") as connection:
-        create_db_query = "CREATE DATABASE VK_forms_scrapper"
-        with connection.cursor() as cursor:
-            cursor.execute(create_db_query)
-except Error as e:
-    print(e)
+recordDaemon = MySqlDaemon(config=cfg)
 
-
-with connection.cursor() as cursor:
-    cursor.execute(create_tables_query)
-    connection.commit()
-
+raise NotImplementedError
 vk_session = vk_api.VkApi(phone_number, password)
 vk_session.auth()
 

@@ -1,4 +1,4 @@
-create_tables_query = """create table FORMS_TABLE
+create_tables_query = """create table VK_forms_scrapper.FORMS_TABLE
 (
     form_id              bigint auto_increment comment 'system form id'
         primary key,
