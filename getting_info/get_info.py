@@ -4,12 +4,12 @@ from MySQLDaemon import MySqlDaemon
 from pprint import pprint
 import yaml
 
+# Record system
 with open("configuration.yaml", "r") as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-
 recordDaemon = MySqlDaemon(config=cfg)
 
-raise NotImplementedError
+
 vk_session = vk_api.VkApi(phone_number, password)
 vk_session.auth()
 
@@ -29,7 +29,7 @@ def getData(vk_api, group_id, voting_flg=True):
                 answer_ids = list(map(lambda x: x["id"], answers))
                 poll_id = poll["id"]
                 tmp_query = "SELECT * FROM tablename WHERE vk_form_id=%(poll_id)s"
-                cursor.execute(tmp_query)
+                recordDaemon.mysql_get_execution_handler(tmp_query)
                 if voting_flg:
                     vk_api.polls.addVote(
                         owner_id=group_id, 

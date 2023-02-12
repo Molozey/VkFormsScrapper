@@ -51,7 +51,7 @@ class MySqlDaemon:
                 logging.error("Connection to database raise error: \n {error}".format(error=e))
                 time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
 
-    def _mysql_post_execution_handler(self, query, need_to_commit: bool = False) -> int:
+    def mysql_post_execution_handler(self, query, need_to_commit: bool = False) -> int:
         """
         Interface to execute POST request to MySQL database
         :param query:
@@ -78,7 +78,7 @@ class MySqlDaemon:
                 time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
 
     # TODO: typing
-    def _mysql_get_execution_handler(self, query) -> object:
+    def mysql_get_execution_handler(self, query) -> object:
         """
         Interface to execute GET request to MySQL database
         :param query:
@@ -109,10 +109,10 @@ class MySqlDaemon:
         _all_exist = True
         _query = """SHOW TABLES LIKE '{}'"""
         for table_name in self.table_names:
-            result = self._mysql_get_execution_handler(_query.format(table_name))
+            result = self.mysql_get_execution_handler(_query.format(table_name))
             if not result:
                 logging.warning(f"Table {table_name} NOT exist; Start creating...")
-                self._mysql_post_execution_handler(
+                self.mysql_post_execution_handler(
                     create_tables_query)
                 _all_exist = False
 
