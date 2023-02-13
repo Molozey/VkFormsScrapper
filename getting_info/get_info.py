@@ -5,6 +5,7 @@ from MySQLDaemon import MySqlDaemon
 from mysql.connector import connect, Error
 from pprint import pprint
 import yaml
+from tqdm import tqdm
 
 # Record system
 try:
@@ -22,7 +23,9 @@ vk_session.auth()
 
 vk = vk_session.get_api()
 
-GROUP_ID = -188660528
+# GROUP_ID = -188660528
+GROUP_ID = -172053584
+
 
 def getData(vk_api, group_id, voting_flg=True):
     users_and_answers = []
@@ -54,7 +57,7 @@ def getData(vk_api, group_id, voting_flg=True):
                         poll_id=poll_id,
                         answer_ids=answer_ids)
                     
-                    for voter in voters:
+                    for voter in tqdm(voters):
                         answer_id = voter["answer_id"]
                         tmp_query = f"SELECT * FROM FORMS_DETAIL_TABLE WHERE vk_answer_id={answer_id}"
                         if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
@@ -63,7 +66,7 @@ def getData(vk_api, group_id, voting_flg=True):
                             insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content)
                                             VALUES ({answer_id}, {ans_id}, {poll_id}, "{answer_text}")"""
                             recordDaemon.mysql_post_execution_handler(insert_query)
-                        for user_id in voter["users"]["items"]:
+                        for user_id in tqdm(voter["users"]["items"]):
                             user_info = vk_api.users.get(user_ids=[str(user_id)],
                                                    fields=["photo_400_orig", "sex", "bdate", "city", "country", "career", "education", "folower_count", "status"])
                             tmp_query = f"SELECT * FROM USER_TABLE WHERE vk_user_id={user_id}"
@@ -77,25 +80,53 @@ def getData(vk_api, group_id, voting_flg=True):
                                 _bdate = user_info["bdate"] if "bdate" in user_info else "null"
                                 _city = user_info["city"]["title"] if "city" in user_info else "null"
                                 _country = user_info["country"]["title"] if "country" in user_info else "null"
-                                _career = user_info["career"][0] if "career" in user_info and len(user_info["career"]) != 0 else "null"
+                                if "career" in user_info and len(user_info["career"]) != 0:
+                                    if "company" in user_info["career"][0]:
+                                        _career = user_info["career"][0]["company"]
+                                    elif type(user_info["career"][0]) == "str":
+                                        _career = user_info["career"][0]
+                                    else:
+                                        _career = "null"
+                                else:
+                                    _career = "null"
+                                # _career = user_info["career"][0] if "career" in user_info and len(user_info["career"]) != 0 else "null"
                                 _education = user_info["university_name"] if "university_name" in user_info else "null"
                                 _friends = 0
                                 _status = user_info["status"] if "status" in user_info else "null"
-                                insert_query = f"""INSERT INTO USER_TABLE (vk_user_id, user_vk_profile_url, user_first_name, user_sec_name, user_sex, 
-                                            user_birth_date, user_city, user_country, user_job_place, user_education_place, user_number_of_friends, user_status)
-                                            VALUES ({user_id}, 
-                                                    "{_user_vk_profile_url}", 
-                                                    "{_first_name}", 
-                                                    "{_last_name}",
-                                                    "{_sex}",
-                                                    "{_bdate}",
-                                                    "{_city}",
-                                                    "{_country}",
-                                                    "{_career}",
-                                                    "{_education}",
-                                                    {_friends},
-                                                    "{_status}")"""
-                                recordDaemon.mysql_post_execution_handler(insert_query)
+                                try:
+                                    insert_query = f"""INSERT INTO USER_TABLE (vk_user_id, user_vk_profile_url, user_first_name, user_sec_name, user_sex, 
+                                                user_birth_date, user_city, user_country, user_job_place, user_education_place, user_number_of_friends, user_status)
+                                                VALUES ({user_id}, 
+                                                        "{_user_vk_profile_url}", 
+                                                        "{_first_name}", 
+                                                        "{_last_name}",
+                                                        "{_sex}",
+                                                        "{_bdate}",
+                                                        "{_city}",
+                                                        "{_country}",
+                                                        "{_career.replace('"', "").replace("'", "")}",
+                                                        "{_education.replace('"', "").replace("'", "")}",
+                                                        {_friends},
+                                                        "{_status.replace('"', "").replace("'", "")}")"""
+                                    recordDaemon.mysql_post_execution_handler(insert_query)
+                                except:
+                                    print(_career)
+                                    pprint(
+                                        f"""INSERT INTO USER_TABLE (vk_user_id, user_vk_profile_url, user_first_name, user_sec_name, user_sex, 
+                                                                                    user_birth_date, user_city, user_country, user_job_place, user_education_place, user_number_of_friends, user_status)
+                                                                                    VALUES ({user_id}, 
+                                                                                            "{_user_vk_profile_url}", 
+                                                                                            "{_first_name}", 
+                                                                                            "{_last_name}",
+                                                                                            "{_sex}",
+                                                                                            "{_bdate}",
+                                                                                            "{_city}",
+                                                                                            "{_country}",
+                                                                                            "{_career}",
+                                                                                            "{_education}",
+                                                                                            {_friends},
+                                                                                            "{_status}")"""
+                                    )
 
     return users_and_answers
 
