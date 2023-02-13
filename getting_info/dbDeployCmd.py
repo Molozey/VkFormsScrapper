@@ -34,7 +34,7 @@ create table VK_forms_scrapper.USER_TABLE
     user_vk_profile_url    text                    null comment 'user vk profile url',
     user_first_name        text                    null comment 'user name',
     user_sec_name          text                    null comment 'user sec name',
-    user_sex               ENUM ('male', 'female') null,
+    user_sex               ENUM ('male', 'female', 'null') null,
     user_birth_date        text                    null,
     user_city              text                    null,
     user_country           text                    null,
