@@ -51,7 +51,7 @@ class MySqlDaemon:
                 logging.error("Connection to database raise error: \n {error}".format(error=e))
                 time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
 
-    def mysql_post_execution_handler(self, query, need_to_commit: bool = False) -> int:
+    def mysql_post_execution_handler(self, query, need_to_commit: bool = True) -> int:
         """
         Interface to execute POST request to MySQL database
         :param query:

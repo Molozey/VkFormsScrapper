@@ -34,13 +34,14 @@ def getData(vk_api, group_id, voting_flg=True):
                 poll = attachment["poll"]
                 answers = poll["answers"]
                 answer_ids = list(map(lambda x: x["id"], answers))
+                answer_texts = list(map(lambda x: x["text"], answers))
                 poll_id = poll["id"]
                 tmp_query = f"SELECT * FROM FORMS_TABLE WHERE vk_form_id={poll_id}"
                 if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
                     insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
                                       VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question']}")"""
-                    recordDaemon.mysql_post_execution_handler(insert_query, need_to_commit=True)
-
+                    recordDaemon.mysql_post_execution_handler(insert_query)
+                #pprint(item)
                 if voting_flg:
                     vk_api.polls.addVote(
                         owner_id=group_id, 
@@ -55,11 +56,14 @@ def getData(vk_api, group_id, voting_flg=True):
                     for voter in voters:
                         answer_id = voter["answer_id"]
                         tmp_query = f"SELECT * FROM FORMS_DETAIL_TABLE WHERE vk_answer_id={answer_id}"
-                        if recordDaemon.mysql_get_execution_handler(tmp_query):
-                            insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content) "
-                                            VALUES ({vk_answer_id}, {})"""
-
-                            cursor.execute(insert_query, form_info)
+                        if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
+                            answer_text = [ans["text"] for ans in answers if ans["id"] == answer_id][0]
+                            ans_id = recordDaemon.mysql_get_execution_handler(f"SELECT form_id FROM FORMS_TABLE WHERE vk_form_id = {poll_id}")[0]
+                            
+                            insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content)
+                                            VALUES ({answer_id}, {ans_id}, {poll_id}, "{answer_text}")"""
+                            print(insert_query)
+                            recordDaemon.mysql_post_execution_handler(insert_query)
                         for user_id in voter["users"]["items"]:
                             tmp_query = "SELECT * FROM FORMS_TABLE WHERE vk_form_id=%(poll_id)s"
                             cursor.execute(tmp_query)
