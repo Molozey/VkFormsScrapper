@@ -38,6 +38,7 @@ def getData(vk_api, group_id, voting_flg=True):
                 poll_id = poll["id"]
                 tmp_query = f"SELECT * FROM FORMS_TABLE WHERE vk_form_id={poll_id}"
                 if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
+                    
                     insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
                                       VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question']}")"""
                     recordDaemon.mysql_post_execution_handler(insert_query)
@@ -59,27 +60,42 @@ def getData(vk_api, group_id, voting_flg=True):
                         if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
                             answer_text = [ans["text"] for ans in answers if ans["id"] == answer_id][0]
                             ans_id = recordDaemon.mysql_get_execution_handler(f"SELECT form_id FROM FORMS_TABLE WHERE vk_form_id = {poll_id}")[0]
-                            
                             insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content)
                                             VALUES ({answer_id}, {ans_id}, {poll_id}, "{answer_text}")"""
-                            print(insert_query)
                             recordDaemon.mysql_post_execution_handler(insert_query)
                         for user_id in voter["users"]["items"]:
-                            tmp_query = "SELECT * FROM FORMS_TABLE WHERE vk_form_id=%(poll_id)s"
-                            cursor.execute(tmp_query)
-                            if cursor.rowcount == 0:
-                                form_info = {
-                                    "vk_form_id"           : poll_id,
-                                    "form_vk_created_date" : item["date"],
-                                    "form_scrapped_date"   : int(time.time_ns() / 1_000_000),
-                                    "multiple_answers"     : poll["multiple"],
-                                    "form_content"         : poll["question"]
-                                }
-                                insert_query = (
-                                    "INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) "
-                                    "VALUES (%(vk_form_id)s, %(form_vk_created_date)s, %(form_scrapped_date)s, %(multiple_answers)s, %(form_content)s)"
-                                    )
-                                cursor.execute(insert_query, form_info)
+                            user_info = vk_api.users.get(user_ids=[str(user_id)],
+                                                   fields=["photo_400_orig", "sex", "bdate", "city", "country", "career", "education", "folower_count", "status"])
+                            tmp_query = f"SELECT * FROM USER_TABLE WHERE vk_user_id={user_id}"
+                            
+                            if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
+                                user_info = user_info[0]
+                                _user_vk_profile_url = user_info["photo_400_orig"] if "photo_400_orig" in user_info else "null"
+                                _first_name = user_info["first_name"] if "first_name" in user_info else "null"
+                                _last_name = user_info["last_name"] if "last_name" in user_info else "null"
+                                _sex = ("male" if user_info["sex"] == 2 else "female") if "sex" in user_info else "null"
+                                _bdate = user_info["bdate"] if "bdate" in user_info else "null"
+                                _city = user_info["city"]["title"] if "city" in user_info else "null"
+                                _country = user_info["country"]["title"] if "country" in user_info else "null"
+                                _career = user_info["career"][0] if "career" in user_info and len(user_info["career"]) != 0 else "null"
+                                _education = user_info["university_name"] if "university_name" in user_info else "null"
+                                _friends = 0
+                                _status = user_info["status"] if "status" in user_info else "null"
+                                insert_query = f"""INSERT INTO USER_TABLE (vk_user_id, user_vk_profile_url, user_first_name, user_sec_name, user_sex, 
+                                            user_birth_date, user_city, user_country, user_job_place, user_education_place, user_number_of_friends, user_status)
+                                            VALUES ({user_id}, 
+                                                    "{_user_vk_profile_url}", 
+                                                    "{_first_name}", 
+                                                    "{_last_name}",
+                                                    "{_sex}",
+                                                    "{_bdate}",
+                                                    "{_city}",
+                                                    "{_country}",
+                                                    "{_career}",
+                                                    "{_education}",
+                                                    {_friends},
+                                                    "{_status}")"""
+                                recordDaemon.mysql_post_execution_handler(insert_query)
 
     return users_and_answers
 
