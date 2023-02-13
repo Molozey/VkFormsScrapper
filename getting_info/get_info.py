@@ -122,4 +122,4 @@ def getData(vk_api, group_id, voting_flg=True):
 
     return users_and_answers
 
-pprint(getData(vk, GROUP_ID, voting_flg=False))
+pprint(getData(vk, GROUP_ID, voting_flg=True))
