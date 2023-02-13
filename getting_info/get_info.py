@@ -7,10 +7,13 @@ from pprint import pprint
 import yaml
 
 # Record system
+try:
+    with open("getting_info/configuration.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+except FileNotFoundError:
+    with open("configuration.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-with open("getting_info/configuration.yaml", "r") as ymlfile:
-    print("Hello")
-    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 recordDaemon = MySqlDaemon(config=cfg)
 
 
@@ -43,36 +46,36 @@ def getData(vk_api, group_id, voting_flg=True):
                         owner_id=group_id, 
                         poll_id=poll_id,
                         answer_ids=answer_ids[:1])
-                           
-                voters = vk.polls.getVoters(
-                    owner_id=group_id,
-                    poll_id=poll_id,
-                    answer_ids=answer_ids)
-                
-                for voter in voters:
-                    answer_id = voter["answer_id"]
-                    tmp_query = f"SELECT * FROM FORMS_DETAIL_TABLE WHERE vk_answer_id={answer_id}"
-                    if recordDaemon.mysql_get_execution_handler(tmp_query):
-                        insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content) "
-                                          VALUES ({vk_answer_id}, {})"""
+                if not poll["anonymous"]:
+                    voters = vk.polls.getVoters(
+                        owner_id=group_id,
+                        poll_id=poll_id,
+                        answer_ids=answer_ids)
+                    
+                    for voter in voters:
+                        answer_id = voter["answer_id"]
+                        tmp_query = f"SELECT * FROM FORMS_DETAIL_TABLE WHERE vk_answer_id={answer_id}"
+                        if recordDaemon.mysql_get_execution_handler(tmp_query):
+                            insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content) "
+                                            VALUES ({vk_answer_id}, {})"""
 
-                        cursor.execute(insert_query, form_info)
-                    for user_id in voter["users"]["items"]:
-                        tmp_query = "SELECT * FROM FORMS_TABLE WHERE vk_form_id=%(poll_id)s"
-                        cursor.execute(tmp_query)
-                        if cursor.rowcount == 0:
-                            form_info = {
-                                "vk_form_id"           : poll_id,
-                                "form_vk_created_date" : item["date"],
-                                "form_scrapped_date"   : int(time.time_ns() / 1_000_000),
-                                "multiple_answers"     : poll["multiple"],
-                                "form_content"         : poll["question"]
-                            }
-                            insert_query = (
-                                "INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) "
-                                "VALUES (%(vk_form_id)s, %(form_vk_created_date)s, %(form_scrapped_date)s, %(multiple_answers)s, %(form_content)s)"
-                                )
                             cursor.execute(insert_query, form_info)
+                        for user_id in voter["users"]["items"]:
+                            tmp_query = "SELECT * FROM FORMS_TABLE WHERE vk_form_id=%(poll_id)s"
+                            cursor.execute(tmp_query)
+                            if cursor.rowcount == 0:
+                                form_info = {
+                                    "vk_form_id"           : poll_id,
+                                    "form_vk_created_date" : item["date"],
+                                    "form_scrapped_date"   : int(time.time_ns() / 1_000_000),
+                                    "multiple_answers"     : poll["multiple"],
+                                    "form_content"         : poll["question"]
+                                }
+                                insert_query = (
+                                    "INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) "
+                                    "VALUES (%(vk_form_id)s, %(form_vk_created_date)s, %(form_scrapped_date)s, %(multiple_answers)s, %(form_content)s)"
+                                    )
+                                cursor.execute(insert_query, form_info)
 
     return users_and_answers
 
