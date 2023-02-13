@@ -7,10 +7,13 @@ from pprint import pprint
 import yaml
 
 # Record system
+try:
+    with open("getting_info/configuration.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+except FileNotFoundError:
+    with open("configuration.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-with open("getting_info/configuration.yaml", "r") as ymlfile:
-    print("Hello")
-    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 recordDaemon = MySqlDaemon(config=cfg)
 
 
