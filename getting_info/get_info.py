@@ -42,7 +42,9 @@ GROUP_ID = -172053584
 def getData(vk_api, group_id, voting_flg=True):
     users_and_answers = []
     # TODO: max request by get is 100. Need to use offset
-    items = vk_api.wall.get(owner_id=group_id, count=100)["items"]
+    # 19000
+    items = vk_api.wall.get(owner_id=group_id, count=100)["items"] # 0 -> 100
+    # items = vk_api.wall.get(owner_id=group_id, count=100, offset=100)["items"] # 100 -> 200
     for item in tqdm(items, desc="Total Forms"):
         attachments = item["attachments"]
         for attachment in attachments:
@@ -79,13 +81,16 @@ def getData(vk_api, group_id, voting_flg=True):
                             insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content)
                                             VALUES ({answer_id}, {ans_id}, {poll_id}, "{answer_text}")"""
                             recordDaemon.mysql_post_execution_handler(insert_query)
-                        for user_id in tqdm(voter["users"]["items"], desc="Form Answer Members", leave=False):
-                            user_info = vk_api.users.get(user_ids=[str(user_id)],
+                            
+                        users = []
+                        
+                        all_fucking_users = vk_api.users.get(user_ids=voter["users"]["items"],
                                                    fields=["photo_400_orig", "sex", "bdate", "city", "country", "career", "education", "folower_count", "status"])
-                            tmp_query = f"SELECT * FROM USER_TABLE WHERE vk_user_id={user_id}"
+                            
+                        for user_info in all_fucking_users:
+                            tmp_query = f"SELECT * FROM USER_TABLE WHERE vk_user_id={user_info['id']}"
                             
                             if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
-                                user_info = user_info[0]
                                 _user_vk_profile_url = user_info["photo_400_orig"] if "photo_400_orig" in user_info else "null"
                                 _first_name = user_info["first_name"] if "first_name" in user_info else "null"
                                 _last_name = user_info["last_name"] if "last_name" in user_info else "null"
@@ -105,31 +110,42 @@ def getData(vk_api, group_id, voting_flg=True):
                                 _education = user_info["university_name"] if "university_name" in user_info else "null"
                                 _friends = 0
                                 _status = user_info["status"] if "status" in user_info else "null"
+                                users.append((
+                                    user_info['id'], 
+                                    _user_vk_profile_url, 
+                                    _first_name, 
+                                    _last_name,
+                                    _sex,
+                                    _bdate,
+                                    _city,
+                                    _country,
+                                    _career.replace('"', "").replace("'", ""),
+                                    _education.replace('"', "").replace("'", ""),
+                                    _friends,
+                                    _status.replace('"', "").replace("'", "")
+                                ))
                                 
-                                insert_query = f"""INSERT INTO USER_TABLE (vk_user_id, user_vk_profile_url, user_first_name, user_sec_name, user_sex, 
+                                
+                                
+                        insert_query = f"""INSERT INTO USER_TABLE (vk_user_id, user_vk_profile_url, user_first_name, user_sec_name, user_sex, 
                                             user_birth_date, user_city, user_country, user_job_place, user_education_place, user_number_of_friends, user_status)
-                                            VALUES ({user_id}, 
-                                                    "{_user_vk_profile_url}", 
-                                                    "{_first_name}", 
-                                                    "{_last_name}",
-                                                    "{_sex}",
-                                                    "{_bdate}",
-                                                    "{_city}",
-                                                    "{_country}",
-                                                    "{_career.replace('"', "").replace("'", "")}",
-                                                    "{_education.replace('"', "").replace("'", "")}",
-                                                    {_friends},
-                                                    "{_status.replace('"', "").replace("'", "")}")"""
-                                recordDaemon.mysql_post_execution_handler(insert_query)
-                                
-                            tmp_query = f"SELECT * FROM USER_ANSWERS_TABLE WHERE vk_user_id={user_id} AND vk_answer_id={answer_id} AND vk_form_id={poll_id}"
+                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                        """
+                        recordDaemon.mysql_post_execution_handler(insert_query, multi=True, input=users)
+                        
+                        for user_info in all_fucking_users:
+                        
+                            tmp_query = f"SELECT * FROM USER_ANSWERS_TABLE WHERE vk_user_id={user_info['id']} AND vk_answer_id={answer_id} AND vk_form_id={poll_id}"
                             if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
-                                us_id  = recordDaemon.mysql_get_execution_handler(f"SELECT user_id FROM USER_TABLE WHERE vk_user_id = {user_id}")[0]
+                                us_id  = recordDaemon.mysql_get_execution_handler(f"SELECT user_id FROM USER_TABLE WHERE vk_user_id = {user_info['id']}")[0]
                                 pl_id  = recordDaemon.mysql_get_execution_handler(f"SELECT form_id FROM FORMS_TABLE WHERE vk_form_id = {poll_id}")[0]
                                 ans_id = recordDaemon.mysql_get_execution_handler(f"SELECT answer_id FROM FORMS_DETAIL_TABLE WHERE vk_answer_id = {answer_id} AND vk_form_id = {poll_id}")[0]
                                 insert_query = f"""INSERT INTO USER_ANSWERS_TABLE (user_id, vk_user_id, answer_id, vk_answer_id, form_id, vk_form_id)
-                                            VALUES ({us_id}, {user_id}, {ans_id}, {answer_id}, {pl_id}, {poll_id})"""
+                                            VALUES ({us_id}, {user_info['id']}, {ans_id}, {answer_id}, {pl_id}, {poll_id})"""
                                 recordDaemon.mysql_post_execution_handler(insert_query)
+                        
+                        
+                                
                             
 
     return users_and_answers

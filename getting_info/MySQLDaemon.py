@@ -51,31 +51,38 @@ class MySqlDaemon:
                 logging.error("Connection to database raise error: \n {error}".format(error=e))
                 time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
 
-    def mysql_post_execution_handler(self, query, need_to_commit: bool = True) -> int:
+    def mysql_post_execution_handler(self, query, multi=False, input=None, need_to_commit: bool = True) -> int:
         """
         Interface to execute POST request to MySQL database
         :param query:
         :return:
         """
+        
         flag = 0
         while flag <= self.cfg["mysql"]["reconnect_max_attempts"]:
             if flag >= self.cfg["mysql"]["reconnect_max_attempts"]:
                 logging.error("Cannot connect to MySQL. Reached maximum attempts")
                 raise ConnectionError("Cannot connect to MySQL. Reached maximum attempts")
-            try:
-                self.database_cursor.execute(query)
+            if multi:
+                self.database_cursor.executemany(query, input)
                 if need_to_commit:
                     self.connection.commit()
                 return 1
-            except connector.errors.InterfaceError as e:
-                self.database_cursor.execute(query, multi=True)
-                if need_to_commit:
-                    self.connection.commit()
-                return 1
-            except connector.Error as e:
-                flag += 1
-                logging.error("MySQL execution error: \n {error}".format(error=e))
-                time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
+            else:
+                try:
+                    self.database_cursor.execute(query)
+                    if need_to_commit:
+                        self.connection.commit()
+                    return 1
+                except connector.errors.InterfaceError as e:
+                    self.database_cursor.execute(query, multi=True)
+                    if need_to_commit:
+                        self.connection.commit()
+                    return 1
+                except connector.Error as e:
+                    flag += 1
+                    logging.error("MySQL execution error: \n {error}".format(error=e))
+                    time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
 
     # TODO: typing
     def mysql_get_execution_handler(self, query) -> object:
