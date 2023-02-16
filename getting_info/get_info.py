@@ -7,6 +7,19 @@ from pprint import pprint
 import yaml
 from tqdm import tqdm
 
+
+def auth_handler():
+    """ При двухфакторной аутентификации вызывается эта функция.
+    """
+
+    # Код двухфакторной аутентификации
+    key = input("Enter authentication code: ")
+    # Если: True - сохранить, False - не сохранять.
+    remember_device = True
+
+    return key, remember_device
+
+
 # Record system
 try:
     with open("getting_info/configuration.yaml", "r") as ymlfile:
@@ -17,8 +30,7 @@ except FileNotFoundError:
 
 recordDaemon = MySqlDaemon(config=cfg)
 
-
-vk_session = vk_api.VkApi(phone_number, password)
+vk_session = vk_api.VkApi(phone_number, password, auth_handler=auth_handler)
 vk_session.auth()
 
 vk = vk_session.get_api()
@@ -29,8 +41,9 @@ GROUP_ID = -172053584
 
 def getData(vk_api, group_id, voting_flg=True):
     users_and_answers = []
-    items = vk_api.wall.get(owner_id=group_id)["items"]
-    for item in items:
+    # TODO: max request by get is 100. Need to use offset
+    items = vk_api.wall.get(owner_id=group_id, count=100)["items"]
+    for item in tqdm(items, desc="Total Forms"):
         attachments = item["attachments"]
         for attachment in attachments:
             if attachment["type"] == "poll":
@@ -45,7 +58,6 @@ def getData(vk_api, group_id, voting_flg=True):
                     insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
                                       VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question']}")"""
                     recordDaemon.mysql_post_execution_handler(insert_query)
-                #pprint(item)
                 if voting_flg:
                     vk_api.polls.addVote(
                         owner_id=group_id, 
@@ -58,7 +70,7 @@ def getData(vk_api, group_id, voting_flg=True):
                         answer_ids=answer_ids,
                         count=1000)
                     
-                    for voter in tqdm(voters):
+                    for voter in tqdm(voters, desc="Form Answer", leave=False):
                         answer_id = voter["answer_id"]
                         tmp_query = f"SELECT * FROM FORMS_DETAIL_TABLE WHERE vk_answer_id={answer_id}"
                         if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
@@ -67,7 +79,7 @@ def getData(vk_api, group_id, voting_flg=True):
                             insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content)
                                             VALUES ({answer_id}, {ans_id}, {poll_id}, "{answer_text}")"""
                             recordDaemon.mysql_post_execution_handler(insert_query)
-                        for user_id in tqdm(voter["users"]["items"]):
+                        for user_id in tqdm(voter["users"]["items"], desc="Form Answer Members", leave=False):
                             user_info = vk_api.users.get(user_ids=[str(user_id)],
                                                    fields=["photo_400_orig", "sex", "bdate", "city", "country", "career", "education", "folower_count", "status"])
                             tmp_query = f"SELECT * FROM USER_TABLE WHERE vk_user_id={user_id}"
