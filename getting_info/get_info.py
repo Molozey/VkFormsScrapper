@@ -60,7 +60,7 @@ def getData(vk_api, group_id, voting_flg=True):
                     if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
                         
                         insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
-                                            VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question']}")"""
+                                            VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question'].replace('"', "").replace("'", "")}")"""
                         recordDaemon.mysql_post_execution_handler(insert_query)
                     if voting_flg:
                         vk_api.polls.addVote(
@@ -78,7 +78,7 @@ def getData(vk_api, group_id, voting_flg=True):
                             answer_id = voter["answer_id"]
                             tmp_query = f"SELECT * FROM FORMS_DETAIL_TABLE WHERE vk_answer_id={answer_id}"
                             if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
-                                answer_text = [ans["text"] for ans in answers if ans["id"] == answer_id][0]
+                                answer_text = [ans["text"].replace('"', "").replace("'", "") for ans in answers if ans["id"] == answer_id][0]
                                 ans_id = recordDaemon.mysql_get_execution_handler(f"SELECT form_id FROM FORMS_TABLE WHERE vk_form_id = {poll_id}")[0]
                                 insert_query = f"""INSERT INTO FORMS_DETAIL_TABLE (vk_answer_id, form_id, vk_form_id, answer_content)
                                                 VALUES ({answer_id}, {ans_id}, {poll_id}, "{answer_text}")"""
@@ -119,8 +119,8 @@ def getData(vk_api, group_id, voting_flg=True):
                                         _last_name,
                                         _sex,
                                         _bdate,
-                                        _city,
-                                        _country,
+                                        _city.replace('"', "").replace("'", ""),
+                                        _country.replace('"', "").replace("'", ""),
                                         _career.replace('"', "").replace("'", ""),
                                         _education.replace('"', "").replace("'", ""),
                                         _friends,
