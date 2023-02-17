@@ -20,6 +20,7 @@ def auth_handler():
 
     return key, remember_device
 
+
 def captcha_handler(captcha):
     """ При возникновении капчи вызывается эта функция и ей передается объект
         капчи. Через метод get_url можно получить ссылку на изображение.
@@ -79,7 +80,7 @@ def getData(group_id, voting_flg=True):
                                             VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question'].replace('"', "").replace("'", "")}")"""
                         recordDaemon.mysql_post_execution_handler(insert_query)
                     if voting_flg and not poll["closed"] and poll["can_vote"]:
-                        vk_api.polls.addVote(
+                        vk.polls.addVote(
                             owner_id=group_id,
                             poll_id=poll_id,
                             answer_ids=answer_ids[:1])
