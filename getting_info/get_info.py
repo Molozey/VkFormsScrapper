@@ -93,14 +93,11 @@ def getData(group_id, voting_flg=True):
                         insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
                                             VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question'].replace('"', "").replace("'", "")}")"""
                         recordDaemon.mysql_post_execution_handler(insert_query)
-                    print(poll)
                     if voting_flg and not poll["closed"] and poll["can_vote"]:
-                        print("New VOTE")
                         vk.polls.addVote(
                             owner_id=group_id,
                             poll_id=poll_id,
-                            answer_ids=answer_ids[:1])
-                    time.sleep(1)
+                            answer_ids=answer_ids[-1])
 
                     if not poll["anonymous"]:
                         voters = vk.polls.getVoters(
@@ -182,6 +179,7 @@ def getData(group_id, voting_flg=True):
                                     recordDaemon.mysql_post_execution_handler(insert_query)
                 time.sleep(20)
         offset += 100
+
 
 getData(GROUP_ID, voting_flg=True)
 
