@@ -1,12 +1,14 @@
 import vk_api
 from vk_api.exceptions import ApiError
 import time
-from login_credits import phone_number, password, access_token
+from login_credits import phone_number, password, access_token, rucaptcha_key
+from python_rucaptcha.ImageCaptcha import ImageCaptcha
 from MySQLDaemon import MySqlDaemon
 from mysql.connector import connect, Error
 from pprint import pprint
 import yaml
 from tqdm import tqdm
+import requests
 
 global vk_session, vk
 
@@ -30,12 +32,15 @@ def captcha_handler(captcha):
     """
     print("Captcha called")
     # key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
-    key = 2002
-    vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
-    vk = vk_session.get_api()
-    time.sleep(30)
-    # Пробуем снова отправить запрос с капчей
-    return captcha.try_again(key)
+    image_captcha = ImageCaptcha(rucaptcha_key=rucaptcha_key)
+    img_data = requests.get(captcha.get_url()).content
+    with open('image_name.jpg', 'wb') as handler:
+        handler.write(img_data)
+    # print(captcha.get_url())
+    # key = image_captcha.captcha_handler(captcha_link=captcha.get_url())
+    keyIMG = image_captcha.captcha_handler(captcha_base64=img_data)
+    print(keyIMG)
+    return captcha.try_again(keyIMG["captchaSolve"])
 
 
 # Record system
@@ -48,9 +53,10 @@ except FileNotFoundError:
 
 recordDaemon = MySqlDaemon(config=cfg)
 
-# vk_session = vk.VkApi(phone_number, password, auth_handler=auth_handler,)
-vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
+# vk_session = vk_api.VkApi(phone_number, password, auth_handler=auth_handler, captcha_handler=captcha_handler)
 # vk_session.auth()
+vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
+
 
 
 vk = vk_session.get_api()
@@ -64,12 +70,13 @@ def getData(group_id, voting_flg=True):
     users_and_answers = []
     # TODO: max request by get is 100. Need to use offset
     # 19000
-    offset = 0
+    offset = 500
     while True:
         items = vk.wall.get(owner_id=group_id, count=100, offset=offset)["items"] # 0 -> 100
         # items = vk.wall.get(owner_id=group_id, count=100, offset=100)["items"] # 100 -> 200
-        for item in tqdm(items, desc="Total Forms"):
+        for item in tqdm(items[80:100], desc="Total Forms"):
             attachments = item["attachments"]
+            # print(attachments)
             for attachment in attachments:
                 if attachment["type"] == "poll":
                     poll = attachment["poll"]
@@ -84,10 +91,13 @@ def getData(group_id, voting_flg=True):
                                             VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question'].replace('"', "").replace("'", "")}")"""
                         recordDaemon.mysql_post_execution_handler(insert_query)
                     if voting_flg and not poll["closed"] and poll["can_vote"]:
+                        print("New VOTE")
                         vk.polls.addVote(
                             owner_id=group_id,
                             poll_id=poll_id,
                             answer_ids=answer_ids[:1])
+                    time.sleep(1)
+
                     if not poll["anonymous"]:
                         voters = vk.polls.getVoters(
                             owner_id=group_id,
