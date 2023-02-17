@@ -62,7 +62,7 @@ def getData(vk_api, group_id, voting_flg=True):
                         insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
                                             VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question'].replace('"', "").replace("'", "")}")"""
                         recordDaemon.mysql_post_execution_handler(insert_query)
-                    if voting_flg:
+                    if voting_flg and not poll["closed"] and poll["can_vote"]:
                         vk_api.polls.addVote(
                             owner_id=group_id, 
                             poll_id=poll_id,
