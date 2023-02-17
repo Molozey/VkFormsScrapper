@@ -31,11 +31,13 @@ def captcha_handler(captcha):
         капчи. Через метод get_url можно получить ссылку на изображение.
         Через метод try_again можно попытаться отправить запрос с кодом капчи
     """
+    print("Captcha in face")
     image_captcha = ImageCaptcha(rucaptcha_key=rucaptcha_key)
     img_data = requests.get(captcha.get_url()).content
     with open('image_name.jpg', 'wb') as handler:
         handler.write(img_data)
     key = image_captcha.captcha_handler(captcha_base64=img_data)
+    print("Solved captcha", key)
     return captcha.try_again(key["captchaSolve"])
 
 
@@ -51,6 +53,7 @@ recordDaemon = MySqlDaemon(config=cfg)
 
 # vk_session = vk_api.VkApi(phone_number, password, auth_handler=auth_handler, captcha_handler=captcha_handler)
 # vk_session.auth()
+
 
 vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler, api_version='5.92')
 vk_session.http.headers['User-agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0'
@@ -177,7 +180,7 @@ def getData(group_id, voting_flg=True):
                                     insert_query = f"""INSERT INTO USER_ANSWERS_TABLE (user_id, vk_user_id, answer_id, vk_answer_id, form_id, vk_form_id)
                                                 VALUES ({us_id}, {user_info['id']}, {ans_id}, {answer_id}, {pl_id}, {poll_id})"""
                                     recordDaemon.mysql_post_execution_handler(insert_query)
-                time.sleep(20)
+                # time.sleep(20)
         offset += 100
 
 
