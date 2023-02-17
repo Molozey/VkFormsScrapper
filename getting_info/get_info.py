@@ -115,8 +115,8 @@ def getData(vk_api, group_id, voting_flg=True):
                                     users.append((
                                         user_info['id'], 
                                         _user_vk_profile_url, 
-                                        _first_name, 
-                                        _last_name,
+                                        _first_name.replace('"', "").replace("'", ""), 
+                                        _last_name.replace('"', "").replace("'", ""),
                                         _sex,
                                         _bdate,
                                         _city.replace('"', "").replace("'", ""),
