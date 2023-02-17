@@ -8,6 +8,8 @@ from pprint import pprint
 import yaml
 from tqdm import tqdm
 
+global vk_session, vk
+
 
 def auth_handler():
     """ При двухфакторной аутентификации вызывается эта функция.
@@ -26,9 +28,12 @@ def captcha_handler(captcha):
         капчи. Через метод get_url можно получить ссылку на изображение.
         Через метод try_again можно попытаться отправить запрос с кодом капчи
     """
-
-    key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
-
+    print("Captcha called")
+    # key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
+    key = 2002
+    vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
+    vk = vk_session.get_api()
+    time.sleep(30)
     # Пробуем снова отправить запрос с капчей
     return captcha.try_again(key)
 
@@ -43,7 +48,6 @@ except FileNotFoundError:
 
 recordDaemon = MySqlDaemon(config=cfg)
 
-global vk_session, vk
 # vk_session = vk.VkApi(phone_number, password, auth_handler=auth_handler,)
 vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
 # vk_session.auth()
@@ -162,8 +166,7 @@ def getData(group_id, voting_flg=True):
                                     insert_query = f"""INSERT INTO USER_ANSWERS_TABLE (user_id, vk_user_id, answer_id, vk_answer_id, form_id, vk_form_id)
                                                 VALUES ({us_id}, {user_info['id']}, {ans_id}, {answer_id}, {pl_id}, {poll_id})"""
                                     recordDaemon.mysql_post_execution_handler(insert_query)
-                print("Wait until new vote")
-                # time.sleep(30)
+                time.sleep(20)
         offset += 100
 
 getData(GROUP_ID, voting_flg=True)
