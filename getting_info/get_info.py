@@ -1,6 +1,7 @@
 import vk_api
+from vk_api.exceptions import ApiError
 import time
-from login_credits import phone_number, password
+from login_credits import phone_number, password, access_token
 from MySQLDaemon import MySqlDaemon
 from mysql.connector import connect, Error
 from pprint import pprint
@@ -19,6 +20,17 @@ def auth_handler():
 
     return key, remember_device
 
+def captcha_handler(captcha):
+    """ При возникновении капчи вызывается эта функция и ей передается объект
+        капчи. Через метод get_url можно получить ссылку на изображение.
+        Через метод try_again можно попытаться отправить запрос с кодом капчи
+    """
+
+    key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
+
+    # Пробуем снова отправить запрос с капчей
+    return captcha.try_again(key)
+
 
 # Record system
 try:
@@ -30,8 +42,11 @@ except FileNotFoundError:
 
 recordDaemon = MySqlDaemon(config=cfg)
 
-vk_session = vk_api.VkApi(phone_number, password, auth_handler=auth_handler)
-vk_session.auth()
+global vk_session, vk
+# vk_session = vk.VkApi(phone_number, password, auth_handler=auth_handler,)
+vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
+# vk_session.auth()
+
 
 vk = vk_session.get_api()
 
@@ -39,14 +54,15 @@ vk = vk_session.get_api()
 GROUP_ID = -172053584
 
 
-def getData(vk_api, group_id, voting_flg=True):
+def getData(group_id, voting_flg=True):
+    global vk
     users_and_answers = []
     # TODO: max request by get is 100. Need to use offset
     # 19000
     offset = 0
     while True:
-        items = vk_api.wall.get(owner_id=group_id, count=100, offset=offset)["items"] # 0 -> 100
-        # items = vk_api.wall.get(owner_id=group_id, count=100, offset=100)["items"] # 100 -> 200
+        items = vk.wall.get(owner_id=group_id, count=100, offset=offset)["items"] # 0 -> 100
+        # items = vk.wall.get(owner_id=group_id, count=100, offset=100)["items"] # 100 -> 200
         for item in tqdm(items, desc="Total Forms"):
             attachments = item["attachments"]
             for attachment in attachments:
@@ -86,7 +102,7 @@ def getData(vk_api, group_id, voting_flg=True):
                                 
                             users = []
                             
-                            all_fucking_users = vk_api.users.get(user_ids=voter["users"]["items"],
+                            all_fucking_users = vk.users.get(user_ids=voter["users"]["items"],
                                                         fields=["photo_400_orig", "sex", "bdate", "city", "country", "career", "education", "folower_count", "status"])
                                 
                             for user_info in all_fucking_users:
@@ -145,8 +161,9 @@ def getData(vk_api, group_id, voting_flg=True):
                                     insert_query = f"""INSERT INTO USER_ANSWERS_TABLE (user_id, vk_user_id, answer_id, vk_answer_id, form_id, vk_form_id)
                                                 VALUES ({us_id}, {user_info['id']}, {ans_id}, {answer_id}, {pl_id}, {poll_id})"""
                                     recordDaemon.mysql_post_execution_handler(insert_query)
-                            
+                print("Wait until new vote")
+                # time.sleep(30)
         offset += 100
 
-getData(vk, GROUP_ID, voting_flg=True)
+getData(GROUP_ID, voting_flg=True)
 
