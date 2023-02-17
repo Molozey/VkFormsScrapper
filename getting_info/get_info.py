@@ -1,12 +1,17 @@
 import vk_api
 from vk_api.exceptions import ApiError
 import time
-from login_credits import phone_number, password, access_token
+from login_credits import phone_number, password, access_token, rucaptcha_key
+from python_rucaptcha.ImageCaptcha import ImageCaptcha
 from MySQLDaemon import MySqlDaemon
 from mysql.connector import connect, Error
 from pprint import pprint
 import yaml
 from tqdm import tqdm
+import requests
+from requests import Session
+
+global vk_session, vk
 
 
 def auth_handler():
@@ -16,20 +21,24 @@ def auth_handler():
     # Код двухфакторной аутентификации
     key = input("Enter authentication code: ")
     # Если: True - сохранить, False - не сохранять.
-    remember_device = True
+    remember_device = False
 
     return key, remember_device
+
 
 def captcha_handler(captcha):
     """ При возникновении капчи вызывается эта функция и ей передается объект
         капчи. Через метод get_url можно получить ссылку на изображение.
         Через метод try_again можно попытаться отправить запрос с кодом капчи
     """
-
-    key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
-
-    # Пробуем снова отправить запрос с капчей
-    return captcha.try_again(key)
+    print("Captcha in face")
+    image_captcha = ImageCaptcha(rucaptcha_key=rucaptcha_key)
+    img_data = requests.get(captcha.get_url()).content
+    with open('image_name.jpg', 'wb') as handler:
+        handler.write(img_data)
+    key = image_captcha.captcha_handler(captcha_base64=img_data)
+    print("Solved captcha", key)
+    return captcha.try_again(key["captchaSolve"])
 
 
 # Record system
@@ -42,13 +51,21 @@ except FileNotFoundError:
 
 recordDaemon = MySqlDaemon(config=cfg)
 
-global vk_session, vk
-# vk_session = vk.VkApi(phone_number, password, auth_handler=auth_handler,)
-vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler)
+# vk_session = vk_api.VkApi(phone_number, password, auth_handler=auth_handler, captcha_handler=captcha_handler)
 # vk_session.auth()
 
 
+vk_session = vk_api.VkApi(phone_number, password, token=access_token, captcha_handler=captcha_handler, api_version='5.92')
+vk_session.http.headers['User-agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0'
 vk = vk_session.get_api()
+
+# user_agent = {"User-agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0'}
+# session = Session()
+# session.headers.update(user_agent)
+# session.headers.update({"Authorization": f"Bearer {access_token}"})
+# vk_session = vk_api.VkApi(phone_number, password, session=session, token=access_token, captcha_handler=captcha_handler, api_version='5.92')
+# vk_session.auth(token_only=True)
+# vk = vk_session.get_api()
 
 # GROUP_ID = -188660528
 GROUP_ID = -172053584
@@ -63,8 +80,9 @@ def getData(group_id, voting_flg=True):
     while True:
         items = vk.wall.get(owner_id=group_id, count=100, offset=offset)["items"] # 0 -> 100
         # items = vk.wall.get(owner_id=group_id, count=100, offset=100)["items"] # 100 -> 200
-        for item in tqdm(items, desc="Total Forms"):
+        for item in tqdm(items[:], desc="Total Forms"):
             attachments = item["attachments"]
+            # print(attachments)
             for attachment in attachments:
                 if attachment["type"] == "poll":
                     poll = attachment["poll"]
@@ -82,7 +100,8 @@ def getData(group_id, voting_flg=True):
                         vk.polls.addVote(
                             owner_id=group_id,
                             poll_id=poll_id,
-                            answer_ids=answer_ids[:1])
+                            answer_ids=answer_ids[-1])
+
                     if not poll["anonymous"]:
                         voters = vk.polls.getVoters(
                             owner_id=group_id,
@@ -161,9 +180,9 @@ def getData(group_id, voting_flg=True):
                                     insert_query = f"""INSERT INTO USER_ANSWERS_TABLE (user_id, vk_user_id, answer_id, vk_answer_id, form_id, vk_form_id)
                                                 VALUES ({us_id}, {user_info['id']}, {ans_id}, {answer_id}, {pl_id}, {poll_id})"""
                                     recordDaemon.mysql_post_execution_handler(insert_query)
-                print("Wait until new vote")
-                # time.sleep(30)
+                # time.sleep(20)
         offset += 100
+
 
 getData(GROUP_ID, voting_flg=True)
 
