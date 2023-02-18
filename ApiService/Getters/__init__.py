@@ -1,2 +1,1 @@
-from .GetUser import GetUser
-from .Empty import Empty
+from .GetUserProfile import GetUserProfile

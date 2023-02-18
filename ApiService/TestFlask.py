@@ -1,13 +1,26 @@
 from flask_restful import Api
 from flask import Flask
-from Getters import GetUser, Empty
+from Getters import GetUserProfile
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from flask_apispec.extension import FlaskApiSpec
+from MySQLGetter import MySqlDaemon
+import yaml
 
+global db
+
+# Record system
+try:
+    with open("getting_info/configuration.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+except FileNotFoundError:
+    with open("configuration.yaml", "r") as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+db = MySqlDaemon(config=cfg)
 
 app = Flask(__name__)
 api = Api(app)
+
 
 app.config.update({
     'APISPEC_SPEC': APISpec(
@@ -21,10 +34,9 @@ app.config.update({
 })
 docs = FlaskApiSpec(app)
 
-# api.add_resource(GetUser, "/user-profile", "/user-profile/", "/user-profile/")
-api.add_resource(Empty, "/empty", "/empty/")
-# docs.register(GetUser)
-docs.register(Empty)
+# TODO: Add resources here
+api.add_resource(GetUserProfile, "/empty", methods=['GET'])
+docs.register(GetUserProfile)
 
 if __name__ == '__main__':
     app.run(debug=True)
