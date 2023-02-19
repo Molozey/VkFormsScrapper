@@ -82,7 +82,7 @@ class MySqlDaemon:
                     time.sleep(self.cfg["mysql"]["reconnect_wait_time"])
 
     # TODO: typing
-    def mysql_get_execution_handler(self, query) -> object:
+    def mysql_get_execution_handler(self, query, multi=False) -> object:
         """
         Interface to execute GET request to MySQL database
         :param query:
@@ -95,7 +95,7 @@ class MySqlDaemon:
                 raise ConnectionError("Cannot connect to MySQL. Reached maximum attempts")
             try:
                 self.database_cursor.execute(query)
-                return self.database_cursor.fetchone()
+                return self.database_cursor.fetchall() if multi else self.database_cursor.fetchone()
             except connector.Error as e:
                 flag += 1
                 logging.error("MySQL execution error: \n {error}".format(error=e))

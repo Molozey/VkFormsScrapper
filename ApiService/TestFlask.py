@@ -1,6 +1,6 @@
 from flask_restful import Api
 from flask import Flask
-from Getters import GetUserProfile
+from Getters import GetUserProfile, GetFormsAnswers
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from flask_apispec.extension import FlaskApiSpec
@@ -35,8 +35,11 @@ app.config.update({
 docs = FlaskApiSpec(app)
 
 # TODO: Add resources here
-api.add_resource(GetUserProfile, "/empty", methods=['GET'])
+api.add_resource(GetUserProfile, "/empty1", methods=['GET'])
+api.add_resource(GetFormsAnswers, "/empty2", methods=['GET'])
+
 docs.register(GetUserProfile)
+docs.register(GetFormsAnswers)
 
 if __name__ == '__main__':
     app.run(debug=True)
