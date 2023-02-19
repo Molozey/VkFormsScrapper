@@ -1,7 +1,7 @@
 mysql:
-    host: localhost
-    user: root
-    password: ""
+    host: "109.248.175.250"
+    user: remote
+    password: "(fS4zn+PaXmuusF+"
     database: VK_forms_scrapper
 
     reconnect_max_attempts: 5

@@ -96,6 +96,15 @@ def getData(group_id, voting_flg=True):
                         insert_query = f"""INSERT INTO FORMS_TABLE (vk_form_id, form_vk_created_date, form_scrapped_date, multiple_answers, form_content) 
                                             VALUES ({poll_id}, {item['date']}, {int(time.time_ns() / 1_000_000)}, "{int(poll['multiple'])}", "{poll['question'].replace('"', "").replace("'", "")}")"""
                         recordDaemon.mysql_post_execution_handler(insert_query)
+
+                    tmp_query = f"SELECT form_id FROM FORMS_TABLE WHERE vk_form_id={poll_id}"
+                    form_id = recordDaemon.mysql_get_execution_handler(tmp_query)[0]
+
+                    tmp_query = f"SELECT * FROM FORMS_EX_DESCR WHERE form_id={form_id}"
+                    if recordDaemon.mysql_get_execution_handler(tmp_query) is None:
+                        insert_query = f"""INSERT INTO FORMS_EX_DESCR (form_id, form_ex_content)
+                                                VALUES ({form_id}, "{item['text'].replace('"', "").replace("'", "")}")"""
+                        recordDaemon.mysql_post_execution_handler(insert_query)
                     if voting_flg and not poll["closed"] and poll["can_vote"]:
                         vk.polls.addVote(
                             owner_id=group_id,
