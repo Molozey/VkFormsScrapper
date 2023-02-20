@@ -1,0 +1,48 @@
+.LendingPage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+
+    background: #0ACF83;
+}
+
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 37px;
+
+    position: absolute;
+    width: 710px;
+    height: 267px;
+    left: calc(50% - 710px/2 - 0.5px);
+    top: calc(50% - 267px/2 - 208px);
+
+    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+.face {
+    position: absolute;
+    width: 333px;
+    height: 421px;
+    left: 0px;
+    bottom: -31px;
+}
+
+.triangle {
+    position: absolute;
+    width: 721px;
+    height: 746px;
+    left: calc(50% - 721px/2 - 1px);
+    bottom: -337px;
+}
+
+.elements {
+    position: absolute;
+    width: 564px;
+    height: 406px;
+    right: 0px;
+    bottom: -18px;
+}
