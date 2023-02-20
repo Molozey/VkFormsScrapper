@@ -14,6 +14,11 @@ class MySqlDaemon:
     database_cursor: connector.connection.MySQLCursor
     table_names: list = ["FORMS_TABLE", "FORMS_DETAIL_TABLE", "USER_TABLE", "USER_ANSWERS_TABLE"]
 
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(MySqlDaemon, cls).__new__(cls)
+        return cls.instance
+
     def __init__(self, config):
         logging.basicConfig(
             level='INFO',
@@ -39,7 +44,8 @@ class MySqlDaemon:
                 self.connection = connector.connect(host=self.cfg["mysql"]["host"],
                                                     user=self.cfg["mysql"]["user"],
                                                     password=self.cfg["mysql"]["password"],
-                                                    database=self.cfg["mysql"]["database"])
+                                                    database=self.cfg["mysql"]["database"],
+                                                    ssl_disabled=True)
                 self.database_cursor = self.connection.cursor()
                 logging.info("Success connection to MySQL database")
                 return 1

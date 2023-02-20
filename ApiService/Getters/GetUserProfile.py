@@ -3,6 +3,7 @@ from flask_apispec import marshal_with, use_kwargs, doc
 from flask_apispec.views import MethodResource
 from marshmallow import Schema, fields
 
+from .DbGetRequestPipeline import get_request
 from ApiService.SQL_pipelines import select_user_by_id
 
 
@@ -36,9 +37,8 @@ class GetUserProfile(MethodResource, Resource):
         :param user_id:
         :return:
         """
-        from ApiService.TestFlask import db
-
-        user = db.mysql_get_execution_handler(select_user_by_id(system_user_id=user_id))
+        # from ApiService.TestFlask import db
+        user = get_request(query=select_user_by_id(system_user_id=user_id))
         content = {
             'user_id': user[0],
             'vk_user_id': user[1],

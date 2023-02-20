@@ -1,8 +1,8 @@
 mysql:
     host: localhost
     user: root
-    password: ""
+    password: "password"
     database: VK_forms_scrapper
 
     reconnect_max_attempts: 5
-    reconnect_wait_time: 1
+    reconnect_wait_time: 4

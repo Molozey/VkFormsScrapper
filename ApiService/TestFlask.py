@@ -1,5 +1,6 @@
 from flask_restful import Api
 from flask import Flask
+from flask_cors import CORS
 from Getters import GetUserProfile, GetFormsAnswers
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -9,16 +10,17 @@ import yaml
 
 global db
 
-# Record system
-try:
-    with open("getting_info/configuration.yaml", "r") as ymlfile:
-        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-except FileNotFoundError:
-    with open("configuration.yaml", "r") as ymlfile:
-        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-db = MySqlDaemon(config=cfg)
+# # Record system
+# try:
+#     with open("getting_info/configuration.yaml", "r") as ymlfile:
+#         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+# except FileNotFoundError:
+#     with open("configuration.yaml", "r") as ymlfile:
+#         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+# db = MySqlDaemon(config=cfg)
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 
