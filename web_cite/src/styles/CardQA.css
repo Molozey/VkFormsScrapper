@@ -1,0 +1,47 @@
+.background {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px 17px;
+    gap: 7px;
+
+    position: absolute;
+    width: 390px;
+    height: 190px;
+
+    background: #E2E9E6;
+    border-radius: 12px;
+}
+
+.fig1 {
+    position: absolute;
+    width: 145.43px;
+    height: 47.19px;
+
+    border-radius: 12px;
+}
+
+.fig2 {
+    position: absolute;
+    width: 185.36px;
+    height: 70.66px;
+
+    border-radius: 12px;
+}
+
+.fig3 {
+    position: absolute;
+    width: 145.43px;
+    height: 47.19px;
+
+    border-radius: 12px;
+}
+
+.fig4 {
+    position: absolute;
+    width: 185.36px;
+    height: 70.68px;
+
+    border-radius: 12px;
+}
