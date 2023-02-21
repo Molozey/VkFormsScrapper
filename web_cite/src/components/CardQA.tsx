@@ -9,10 +9,6 @@ interface CardStyle {
     num: number;
 }
 
-function Figure(figNum: any, styleNum: any) {
-    return <img src={figNum} className={styleNum} alt='Unstyled'/>
-}
-
 
 class CardQA extends React.Component<CardStyle> {
     question?: string;
@@ -24,8 +20,8 @@ class CardQA extends React.Component<CardStyle> {
     constructor(props: CardStyle) {
         super(props);
         let style_array = this.condStyle(props.num)
-        this.figNum = style_array[0]
-        this.styleNum = style_array[1]
+        this.figNum = style_array[1]
+        this.styleNum = style_array[0]
     }
      // TODO: add constructor with question and answer
 
@@ -47,13 +43,8 @@ class CardQA extends React.Component<CardStyle> {
         // console.log(this.styleNum)
         return (
         <div className='background'>
-            // This is not working
-            {/*<Figure figNum={this.figNum} styleNum={this.styleNum}/>*/}
-            {/*<img src={this.figNum} className={this.styleNum} alt='Unstyled'/>*/}
-            // This is working
-            <img src={fig1} className={this.styleNum} alt='Unstyled'/>
+            <img src={this.figNum} className={this.styleNum} alt='Unstyled'/>
         </div>
-
         )
     }
 }

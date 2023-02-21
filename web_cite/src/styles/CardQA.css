@@ -3,7 +3,8 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    padding: 20px 17px;
+    padding: 0px;
+    margin: 0px;
     gap: 7px;
 
     position: absolute;
@@ -16,32 +17,25 @@
 
 .fig1 {
     position: absolute;
-    width: 145.43px;
-    height: 47.19px;
-
-    border-radius: 12px;
+    width: 100%;
+    height: 30%;
 }
 
 .fig2 {
     position: absolute;
-    width: 185.36px;
-    height: 70.66px;
-
-    border-radius: 12px;
+    width: 100%;
+    height: 40%;
 }
 
 .fig3 {
     position: absolute;
-    width: 145.43px;
-    height: 47.19px;
+    width: 100%;
+    height: 30%;
 
-    border-radius: 12px;
 }
 
 .fig4 {
     position: absolute;
-    width: 185.36px;
-    height: 70.68px;
-
-    border-radius: 12px;
+    width: 100%;
+    height: 40%;
 }
