@@ -1,3 +1,12 @@
+.mask {
+    position: absolute;
+    width: 424px;
+    height: 230px;
+
+    vertical-align: bottom;
+    horiz-align: right;
+}
+
 .background {
     display: flex;
     flex-direction: column;
@@ -48,25 +57,36 @@
 
 .fig1 {
     position: absolute;
-    width: 100%;
+    width: 70%;
     height: 30%;
+
+    bottom: -10px;
+    right: 0;
 }
 
 .fig2 {
     position: absolute;
-    width: 100%;
+    width: 65%;
     height: 40%;
+
+    bottom: -10px;
+    right: 0;
 }
 
 .fig3 {
     position: absolute;
-    width: 100%;
+    width: 70%;
     height: 30%;
 
+    bottom: -10px;
+    right: 0;
 }
 
 .fig4 {
     position: absolute;
-    width: 100%;
+    width: 50%;
     height: 40%;
+
+    bottom: -10px;
+    right: 0;
 }

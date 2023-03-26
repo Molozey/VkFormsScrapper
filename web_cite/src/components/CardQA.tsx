@@ -27,7 +27,6 @@ class CardQA extends React.Component<CardStyle> {
         this.question = props.question
         this.answer = props.answer
     }
-     // TODO: add constructor with question and answer
 
     condStyle(num: number) {
         if (num == 1) {
@@ -46,12 +45,12 @@ class CardQA extends React.Component<CardStyle> {
         // console.log(this.figNum)
         // console.log(this.styleNum)
         return (
-            <div>
+            <div className='mask'>
                 <div className='background'>
                     <p className='question'> {this.question} </p>
                     <p className='answer'> {this.answer} </p>
-                    <img src={this.figNum} className={this.styleNum} alt='Unstyled'/>
                 </div>
+                <img src={this.figNum} className={this.styleNum} alt='Unstyled'/>
             </div>
         )
     }
