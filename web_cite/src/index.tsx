@@ -8,6 +8,6 @@ import Card from "./components/CardQA";
 ReactDOM.render(
     // <App />,
     // <LendingPage />,
-    <Card num={2}/>,
+    <Card num={2} question={'Question'} answer={'Answer'}/>,
   document.getElementById('root')
 );

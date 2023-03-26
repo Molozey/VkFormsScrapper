@@ -7,6 +7,8 @@ import '../styles/CardQA.css' ;
 
 interface CardStyle {
     num: number;
+    question: string;
+    answer: string;
 }
 
 
@@ -22,6 +24,8 @@ class CardQA extends React.Component<CardStyle> {
         let style_array = this.condStyle(props.num)
         this.figNum = style_array[1]
         this.styleNum = style_array[0]
+        this.question = props.question
+        this.answer = props.answer
     }
      // TODO: add constructor with question and answer
 
@@ -42,9 +46,13 @@ class CardQA extends React.Component<CardStyle> {
         // console.log(this.figNum)
         // console.log(this.styleNum)
         return (
-        <div className='background'>
-            <img src={this.figNum} className={this.styleNum} alt='Unstyled'/>
-        </div>
+            <div>
+                <div className='background'>
+                    <p className='question'> {this.question} </p>
+                    <p className='answer'> {this.answer} </p>
+                    <img src={this.figNum} className={this.styleNum} alt='Unstyled'/>
+                </div>
+            </div>
         )
     }
 }

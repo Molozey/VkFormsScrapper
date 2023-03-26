@@ -3,8 +3,7 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    padding: 0px;
-    margin: 0px;
+    padding: 20px 17px;
     gap: 7px;
 
     position: absolute;
@@ -13,6 +12,38 @@
 
     background: #E2E9E6;
     border-radius: 12px;
+}
+
+.question {
+    width: 281px;
+    height: 94px;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 18px;
+    line-height: 120%;
+    /* or 22px */
+
+    text-align: left;
+    vertical-align: top;
+    color: #000000;
+}
+
+.answer {
+    width: 279px;
+    height: 49px;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 120%;
+    /* or 22px */
+
+    text-align: left;
+    vertical-align: top;
+    color: #000000;
 }
 
 .fig1 {
