@@ -59,17 +59,14 @@ class DynamicUser extends React.Component<UserProps>{
         // @ts-ignore
         const {userContent, dataIsLoaded} = this.state;
         if (!dataIsLoaded) return (
-            <div className={"userInformation"}>
-                <div>User id: {userContent.user_id}</div>
-                <div>User name: {userContent.user_name}</div>
-                <div>User last name: {userContent.user_last_name}</div>
-            </div>
+            <div>Wait a Little</div>
         )
         return (
             <div className={"userCard"}>
                 <img src={face} className='photo' alt='photo'/>
                 <div className='userInfo'>
                     <p className='name'>User name: {userContent.user_name}</p>
+                    <p className='name'>User last name: {userContent.user_last_name}</p>
                     <p className='info'>User id: {userContent.user_id}</p>
                 </div>
             </div>
