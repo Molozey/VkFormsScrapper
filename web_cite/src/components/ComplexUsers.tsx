@@ -22,12 +22,10 @@ class ComplexUsers extends React.Component<ShowProps> {
 
     render() {
         return (
-            <div>
-                <h1>Users Cards</h1>
-                {this.arr_names.map((content, index) =>
-                    <DynamicUser user_id={content} key={index}/>)}
-                {/*<DynamicUser user_id={this.arr_names[0]}></DynamicUser>*/}
-            </div>
+            <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-evenly"}}>{
+                this.arr_names.map((content, index) =>
+                    <DynamicUser user_id={content} key={index}/>)
+            }</div>
         )
     }
 }
