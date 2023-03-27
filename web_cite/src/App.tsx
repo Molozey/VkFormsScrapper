@@ -11,7 +11,7 @@ function App() {
         <h1 color={"red"}>Dynamic User</h1>
         <h4>EMPTY</h4>
         <ComplexUsers number_of_users={1}/>
-        <ShowSeveralCards number_of_forms={3}/>
+        <ShowSeveralCards number_of_forms={30}/>
         {/*<CardQA num={1} question={"trst"} answer={"test_abs"}></CardQA>*/}
         {/*<LendingPage></LendingPage>*/}
     </div>

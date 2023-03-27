@@ -22,7 +22,7 @@ class ShowSeveralCards extends React.Component<ShowProps> {
 
     render() {
         return (
-            <div style={{display: "inline-block", justifyContent: "center"}}>{
+            <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-evenly"}}>{
                 this.arr_forms.map((content, index) =>
                     <CardQA card_id={content} key={index}/>)
             }</div>
