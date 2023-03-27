@@ -1,0 +1,64 @@
+.userCard {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+    padding: 10px 10px;
+    gap: 7px;
+
+    position: relative;
+    width: 390px;
+    height: 150px;
+
+    background: #E2E9E6;
+    border-radius: 12px;
+}
+
+.userInfo {
+    height: 100%;
+    flex-direction: column;
+    right: 0;
+    justify-content: center;
+}
+
+.name {
+    width: 150px;
+    height: 40px;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 18px;
+    line-height: 120%;
+    /* or 22px */
+
+    text-align: left;
+    vertical-align: top;
+    color: #000000;
+
+    right: 0;
+}
+
+.info {
+    width: 180px;
+    height: 80px;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 120%;
+    /* or 22px */
+
+    text-align: left;
+    vertical-align: top;
+    color: #000000;
+
+    right: 100px;
+}
+
+.photo{
+    position: absolute;
+    height: 80%;
+    left: 0;
+}
