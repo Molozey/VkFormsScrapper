@@ -11,6 +11,7 @@ interface UserContent {
     readonly user_id: number;
     user_name: string;
     user_last_name: string;
+    user_profile_url: string;
     user_polls?: number;
 }
 
@@ -19,14 +20,17 @@ class DynamicUser extends React.Component<UserProps>{
         user_id: 0,
         user_name: "default",
         user_polls: 1,
+        user_profile_url: "default",
         user_last_name: "default"
     }
     public changeState(json: any) : void {
+        console.log(json.user_vk_profile_url)
         this.setState({
             userContent: {
                 user_id: this.props.user_id,
                 user_name: json.user_first_name,
                 user_last_name: json.user_sec_name,
+                user_profile_url: (json.user_vk_profile_url != "null" ? json.user_vk_profile_url : face),
                 user_polls: "default",
             },
             dataIsLoaded: true
@@ -63,7 +67,7 @@ class DynamicUser extends React.Component<UserProps>{
         )
         return (
             <div className={"userCard"}>
-                <img src={face} className='photo' alt='photo'/>
+                <img src={userContent.user_profile_url} className='photo' alt={'defaultFace'}/>
                 <div className='userInfo'>
                     <p className='name'>User name: {userContent.user_name}</p>
                     <p className='name'>User last name: {userContent.user_last_name}</p>
