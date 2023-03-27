@@ -1,4 +1,6 @@
 import React from "react";
+import '../styles/DynamicUser.css' ;
+import face from "../images/face.svg";
 
 interface UserProps {
     user_id: number;
@@ -9,14 +11,14 @@ interface UserContent {
     readonly user_id: number;
     user_name: string;
     user_last_name: string;
-    user_age?: string;
-
+    user_polls?: number;
 }
+
 class DynamicUser extends React.Component<UserProps>{
     userContent: UserContent = {
         user_id: 0,
         user_name: "default",
-        user_age: "unknown",
+        user_polls: 1,
         user_last_name: "default"
     }
     public changeState(json: any) : void {
@@ -25,7 +27,7 @@ class DynamicUser extends React.Component<UserProps>{
                 user_id: this.props.user_id,
                 user_name: json.user_first_name,
                 user_last_name: json.user_sec_name,
-                user_age: "default",
+                user_polls: "default",
             },
             dataIsLoaded: true
         }
@@ -64,10 +66,12 @@ class DynamicUser extends React.Component<UserProps>{
             </div>
         )
         return (
-            <div className={"userInformation"}>
-                <div>User id: {userContent.user_id}</div>
-                <div>User name: {userContent.user_name}</div>
-                <div>User last name: {userContent.user_last_name}</div>
+            <div className={"userCard"}>
+                <img src={face} className='photo' alt='photo'/>
+                <div className='userInfo'>
+                    <p className='name'>User name: {userContent.user_name}</p>
+                    <p className='info'>User id: {userContent.user_id}</p>
+                </div>
             </div>
         )
     }
