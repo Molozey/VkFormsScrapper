@@ -1,5 +1,5 @@
 import React from "react";
-import DynamicCard from "./DynamicCard";
+import CardQA from "./CardQA";
 
 interface ShowProps {
     number_of_forms: number;
@@ -22,11 +22,10 @@ class ShowSeveralCards extends React.Component<ShowProps> {
 
     render() {
         return (
-            <div>
-                <h1>Users Cards</h1>
-        {this.arr_forms.map((content, index) =>
-            <DynamicCard card_id={content} key={index}/>)}
-            </div>
+            <div style={{display: "inline-block", justifyContent: "center"}}>{
+                this.arr_forms.map((content, index) =>
+                    <CardQA card_id={content} key={index}/>)
+            }</div>
         )
         }
     }

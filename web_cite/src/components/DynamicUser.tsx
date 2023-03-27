@@ -20,7 +20,6 @@ class DynamicUser extends React.Component<UserProps>{
         user_last_name: "default"
     }
     public changeState(json: any) : void {
-        console.log(json)
         this.setState({
             userContent: {
                 user_id: this.props.user_id,
@@ -58,7 +57,11 @@ class DynamicUser extends React.Component<UserProps>{
         // @ts-ignore
         const {userContent, dataIsLoaded} = this.state;
         if (!dataIsLoaded) return (
-            <div>Wait a Little</div>
+            <div className={"userInformation"}>
+                <div>User id: {userContent.user_id}</div>
+                <div>User name: {userContent.user_name}</div>
+                <div>User last name: {userContent.user_last_name}</div>
+            </div>
         )
         return (
             <div className={"userInformation"}>

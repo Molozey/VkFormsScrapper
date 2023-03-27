@@ -1,10 +1,12 @@
 .mask {
-    position: absolute;
-    width: 424px;
-    height: 230px;
+    position: relative;
+    width: 40%;
+    height: 100%;
+    /*height: 230px;*/
 
-    vertical-align: bottom;
-    horiz-align: right;
+    margin-top: 20px;
+    /*vertical-align: bottom;*/
+    /*horiz-align: right;*/
 }
 
 .background {
@@ -12,12 +14,12 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    padding: 20px 17px;
+    /*padding: 20px 17px;*/
     gap: 7px;
 
-    position: absolute;
+    position: relative;
     width: 390px;
-    height: 190px;
+    /*height: 190px;*/
 
     background: #E2E9E6;
     border-radius: 12px;
@@ -40,32 +42,33 @@
 }
 
 .answer {
-    width: 279px;
-    height: 49px;
-
+    width: 281px;
+    /*height: 49px;*/
+    /*align-self: self-start;*/
     font-family: 'Inter';
     font-style: normal;
     font-weight: 300;
     font-size: 18px;
     line-height: 120%;
     /* or 22px */
-
+    margin: 0 0 0 0;
     text-align: left;
     vertical-align: top;
     color: #000000;
 }
 
 .fig1 {
-    position: absolute;
+    position: relative;
     width: 70%;
     height: 30%;
 
     bottom: -10px;
     right: 0;
+    vertical-align: bottom;
 }
 
 .fig2 {
-    position: absolute;
+    position: relative;
     width: 65%;
     height: 40%;
 
@@ -74,12 +77,13 @@
 }
 
 .fig3 {
-    position: absolute;
+    position: relative;
     width: 70%;
     height: 30%;
 
     bottom: -10px;
     right: 0;
+
 }
 
 .fig4 {
