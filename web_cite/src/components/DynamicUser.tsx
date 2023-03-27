@@ -36,11 +36,10 @@ class DynamicUser extends React.Component<UserProps>{
     constructor(userID: UserProps) {
         super(userID);
         this.state = {
-            userContent: [],
+            userContent: this.userContent,
             dataIsLoaded: false
         }
 
-        console.log(this.props.user_id)
         let query: string = `http://127.0.0.1:5000/empty1?user_id=${this.props.user_id}`
         fetch(query, {
             method: "GET",
@@ -58,12 +57,9 @@ class DynamicUser extends React.Component<UserProps>{
     render() {
         // @ts-ignore
         const {userContent, dataIsLoaded} = this.state;
-        console.log("dataIsLoaded", dataIsLoaded)
         if (!dataIsLoaded) return (
             <div>Wait a Little</div>
         )
-        console.log(this.userContent.user_name)
-        console.log("User", userContent)
         return (
             <div className={"userInformation"}>
                 <div>User id: {userContent.user_id}</div>
